@@ -17,8 +17,9 @@ instance View NewView where
 
 renderForm :: User -> Html
 renderForm user = formFor user [hsx|
-    {(textField #stripeCustomerId)}
-    {(textField #subscriptionId)}
+    {(textField #firstName)}
+    {(textField #lastName)}
+    {(textField #email)}
     {submitButton}
 
 |]
