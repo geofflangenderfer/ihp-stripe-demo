@@ -1,0 +1,35 @@
+{
+  "name": "fixed-price-subscription",
+  "version": "0.2.0",
+  "private": true,
+  "dependencies": {
+    "@stripe/react-stripe-js": "^1.1.2",
+    "@stripe/stripe-js": "^1.6.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-router-dom": "^5.2.0"
+  },
+  "scripts": {
+    "start": "vite",
+    "build": "vite build"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^9.8.0",
+    "postcss-cli": "^7.1.1",
+    "vite": "^5.0.12"
+  },
+  "proxy": "http://localhost:4242"
+}
