@@ -16,6 +16,7 @@ import qualified StripeAPI as Stripe
 import qualified StripeAPI.Types.NotificationEventData.Extra as Stripe
 import Control.Monad.Trans.Except (ExceptT, throwE, runExceptT)
 import IHP.ControllerPrelude
+import qualified Data.Text.IO as TIO
 
 instance Controller UserController where
     action UsersAction = do
@@ -51,6 +52,7 @@ instance Controller UserController where
         case result of
             Nothing -> render NewView { .. }
             Just customerId -> do
+                putStrLn customerId
                 let userWithCustomerId = user |> set #stripeCustomerId customerId
 
                 userWithCustomerId
@@ -90,8 +92,19 @@ createStripeCustomer = do
     -- print resp
     case HS.getResponseBody resp of
         Stripe.PostCustomersResponse200 customer -> pure $ Just (Stripe.customerId customer)
-        -- PostCustomers.PostCustomersResponseError error -> Left
-        -- PostCustomers.PostCustomersResponseDefault error -> Left
+        Stripe.PostCustomersResponseError errorString -> do
+            putStrLn $ show errorString
+            pure Nothing
+        Stripe.PostCustomersResponseDefault stripeError -> do
+            let code = Stripe.apiErrorsCode (Stripe.errorError stripeError)
+            let message = Stripe.apiErrorsMessage (Stripe.errorError stripeError)
+            case code of
+                Just actual -> TIO.putStrLn $ "error code: " ++ actual
+                Nothing -> putStrLn "no error code"
+            case message of
+                Just actual -> TIO.putStrLn $ "error message: " ++ actual
+                Nothing -> putStrLn "no error message"
+            pure Nothing
         _ -> pure Nothing
 
 {-
