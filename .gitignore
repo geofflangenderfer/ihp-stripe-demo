@@ -6,14 +6,13 @@ result
 node_modules
 bin
 *.iml
-Generated
 dist
 dist-newstyle
 *.dyn_hi
 *.dyn_o
 *.hi
 *.o
-build
+build/db
 gen
 del
 static/prod.*
