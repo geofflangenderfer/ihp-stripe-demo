@@ -11,8 +11,8 @@ instance Controller SubscriptionController where
         subscription <- query @Subscription |> fetch
         render IndexView { .. }
 
-    action NewSubscriptionAction = do
-        let subscription = newRecord
+    action NewSubscriptionAction { userId } = do
+        let subscription = newRecord |> set #userId userId
         render NewView { .. }
 
     action ShowSubscriptionAction { subscriptionId } = do
@@ -52,4 +52,4 @@ instance Controller SubscriptionController where
         redirectTo SubscriptionsAction
 
 buildSubscription subscription = subscription
-    |> fill @'["userId", "plan", "price"]
+    |> fill @'["plan", "price", "priceId", "userId"]

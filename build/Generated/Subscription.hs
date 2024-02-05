@@ -45,7 +45,8 @@ instance FromRow Subscription where
         createdAt <- field
         plan <- field
         price <- field
-        let theRecord = Subscription id userId updatedAt createdAt plan price def { originalDatabaseRecord = Just (Data.Dynamic.toDyn theRecord) }
+        priceId <- field
+        let theRecord = Subscription id userId updatedAt createdAt plan price priceId def { originalDatabaseRecord = Just (Data.Dynamic.toDyn theRecord) }
         pure theRecord
 
 
@@ -54,18 +55,18 @@ type instance GetModelName (Subscription' _) = "Subscription"
 instance CanCreate Subscription where
     create :: (?modelContext :: ModelContext) => Subscription -> IO Subscription
     create model = do
-        List.head <$> sqlQuery "INSERT INTO subscriptions (id, user_id, updated_at, created_at, plan, price) VALUES (?, ?, ?, ?, ?, ?) RETURNING id, user_id, updated_at, created_at, plan, price" ((fieldWithDefault #id model, model.userId, fieldWithDefault #updatedAt model, fieldWithDefault #createdAt model, model.plan, model.price))
+        List.head <$> sqlQuery "INSERT INTO subscriptions (id, user_id, updated_at, created_at, plan, price, price_id) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id, user_id, updated_at, created_at, plan, price, price_id" ((fieldWithDefault #id model, model.userId, fieldWithDefault #updatedAt model, fieldWithDefault #createdAt model, model.plan, model.price, model.priceId))
     createMany [] = pure []
     createMany models = do
-        sqlQuery (Query $ "INSERT INTO subscriptions (id, user_id, updated_at, created_at, plan, price) VALUES " <> (ByteString.intercalate ", " (List.map (\_ -> "(?, ?, ?, ?, ?, ?)") models)) <> " RETURNING id, user_id, updated_at, created_at, plan, price") (List.concat $ List.map (\model -> [toField (fieldWithDefault #id model), toField (model.userId), toField (fieldWithDefault #updatedAt model), toField (fieldWithDefault #createdAt model), toField (model.plan), toField (model.price)]) models)
+        sqlQuery (Query $ "INSERT INTO subscriptions (id, user_id, updated_at, created_at, plan, price, price_id) VALUES " <> (ByteString.intercalate ", " (List.map (\_ -> "(?, ?, ?, ?, ?, ?, ?)") models)) <> " RETURNING id, user_id, updated_at, created_at, plan, price, price_id") (List.concat $ List.map (\model -> [toField (fieldWithDefault #id model), toField (model.userId), toField (fieldWithDefault #updatedAt model), toField (fieldWithDefault #createdAt model), toField (model.plan), toField (model.price), toField (model.priceId)]) models)
 
 instance CanUpdate Subscription where
     updateRecord model = do
-        List.head <$> sqlQuery "UPDATE subscriptions SET id = ?, user_id = ?, updated_at = ?, created_at = ?, plan = ?, price = ? WHERE id = ? RETURNING id, user_id, updated_at, created_at, plan, price" ((fieldWithUpdate #id model, fieldWithUpdate #userId model, fieldWithUpdate #updatedAt model, fieldWithUpdate #createdAt model, fieldWithUpdate #plan model, fieldWithUpdate #price model, model.id))
+        List.head <$> sqlQuery "UPDATE subscriptions SET id = ?, user_id = ?, updated_at = ?, created_at = ?, plan = ?, price = ?, price_id = ? WHERE id = ? RETURNING id, user_id, updated_at, created_at, plan, price, price_id" ((fieldWithUpdate #id model, fieldWithUpdate #userId model, fieldWithUpdate #updatedAt model, fieldWithUpdate #createdAt model, fieldWithUpdate #plan model, fieldWithUpdate #price model, fieldWithUpdate #priceId model, model.id))
 
 instance Record Subscription where
     {-# INLINE newRecord #-}
-    newRecord = Subscription def def def def def def  def
+    newRecord = Subscription def def def def def def def  def
 
 
 instance QueryBuilder.FilterPrimaryKey "subscriptions" where
@@ -76,52 +77,59 @@ instance QueryBuilder.FilterPrimaryKey "subscriptions" where
 
 instance SetField "id" (Subscription' userId) (Id' "subscriptions") where
     {-# INLINE setField #-}
-    setField newValue (Subscription id userId updatedAt createdAt plan price meta) =
-        Subscription newValue userId updatedAt createdAt plan price (meta { touchedFields = "id" : touchedFields meta })
+    setField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) =
+        Subscription newValue userId updatedAt createdAt plan price priceId (meta { touchedFields = "id" : touchedFields meta })
 instance SetField "userId" (Subscription' userId) userId where
     {-# INLINE setField #-}
-    setField newValue (Subscription id userId updatedAt createdAt plan price meta) =
-        Subscription id newValue updatedAt createdAt plan price (meta { touchedFields = "userId" : touchedFields meta })
+    setField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) =
+        Subscription id newValue updatedAt createdAt plan price priceId (meta { touchedFields = "userId" : touchedFields meta })
 instance SetField "updatedAt" (Subscription' userId) UTCTime where
     {-# INLINE setField #-}
-    setField newValue (Subscription id userId updatedAt createdAt plan price meta) =
-        Subscription id userId newValue createdAt plan price (meta { touchedFields = "updatedAt" : touchedFields meta })
+    setField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) =
+        Subscription id userId newValue createdAt plan price priceId (meta { touchedFields = "updatedAt" : touchedFields meta })
 instance SetField "createdAt" (Subscription' userId) UTCTime where
     {-# INLINE setField #-}
-    setField newValue (Subscription id userId updatedAt createdAt plan price meta) =
-        Subscription id userId updatedAt newValue plan price (meta { touchedFields = "createdAt" : touchedFields meta })
+    setField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) =
+        Subscription id userId updatedAt newValue plan price priceId (meta { touchedFields = "createdAt" : touchedFields meta })
 instance SetField "plan" (Subscription' userId) Text where
     {-# INLINE setField #-}
-    setField newValue (Subscription id userId updatedAt createdAt plan price meta) =
-        Subscription id userId updatedAt createdAt newValue price (meta { touchedFields = "plan" : touchedFields meta })
+    setField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) =
+        Subscription id userId updatedAt createdAt newValue price priceId (meta { touchedFields = "plan" : touchedFields meta })
 instance SetField "price" (Subscription' userId) Text where
     {-# INLINE setField #-}
-    setField newValue (Subscription id userId updatedAt createdAt plan price meta) =
-        Subscription id userId updatedAt createdAt plan newValue (meta { touchedFields = "price" : touchedFields meta })
+    setField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) =
+        Subscription id userId updatedAt createdAt plan newValue priceId (meta { touchedFields = "price" : touchedFields meta })
+instance SetField "priceId" (Subscription' userId) Text where
+    {-# INLINE setField #-}
+    setField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) =
+        Subscription id userId updatedAt createdAt plan price newValue (meta { touchedFields = "priceId" : touchedFields meta })
 instance SetField "meta" (Subscription' userId) MetaBag where
     {-# INLINE setField #-}
-    setField newValue (Subscription id userId updatedAt createdAt plan price meta) =
-        Subscription id userId updatedAt createdAt plan price newValue
+    setField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) =
+        Subscription id userId updatedAt createdAt plan price priceId newValue
 instance UpdateField "id" (Subscription' userId) (Subscription' userId) (Id' "subscriptions") (Id' "subscriptions") where
     {-# INLINE updateField #-}
-    updateField newValue (Subscription id userId updatedAt createdAt plan price meta) = Subscription newValue userId updatedAt createdAt plan price (meta { touchedFields = "id" : touchedFields meta })
+    updateField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) = Subscription newValue userId updatedAt createdAt plan price priceId (meta { touchedFields = "id" : touchedFields meta })
 instance UpdateField "userId" (Subscription' userId) (Subscription' userId') userId userId' where
     {-# INLINE updateField #-}
-    updateField newValue (Subscription id userId updatedAt createdAt plan price meta) = Subscription id newValue updatedAt createdAt plan price (meta { touchedFields = "userId" : touchedFields meta })
+    updateField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) = Subscription id newValue updatedAt createdAt plan price priceId (meta { touchedFields = "userId" : touchedFields meta })
 instance UpdateField "updatedAt" (Subscription' userId) (Subscription' userId) UTCTime UTCTime where
     {-# INLINE updateField #-}
-    updateField newValue (Subscription id userId updatedAt createdAt plan price meta) = Subscription id userId newValue createdAt plan price (meta { touchedFields = "updatedAt" : touchedFields meta })
+    updateField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) = Subscription id userId newValue createdAt plan price priceId (meta { touchedFields = "updatedAt" : touchedFields meta })
 instance UpdateField "createdAt" (Subscription' userId) (Subscription' userId) UTCTime UTCTime where
     {-# INLINE updateField #-}
-    updateField newValue (Subscription id userId updatedAt createdAt plan price meta) = Subscription id userId updatedAt newValue plan price (meta { touchedFields = "createdAt" : touchedFields meta })
+    updateField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) = Subscription id userId updatedAt newValue plan price priceId (meta { touchedFields = "createdAt" : touchedFields meta })
 instance UpdateField "plan" (Subscription' userId) (Subscription' userId) Text Text where
     {-# INLINE updateField #-}
-    updateField newValue (Subscription id userId updatedAt createdAt plan price meta) = Subscription id userId updatedAt createdAt newValue price (meta { touchedFields = "plan" : touchedFields meta })
+    updateField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) = Subscription id userId updatedAt createdAt newValue price priceId (meta { touchedFields = "plan" : touchedFields meta })
 instance UpdateField "price" (Subscription' userId) (Subscription' userId) Text Text where
     {-# INLINE updateField #-}
-    updateField newValue (Subscription id userId updatedAt createdAt plan price meta) = Subscription id userId updatedAt createdAt plan newValue (meta { touchedFields = "price" : touchedFields meta })
+    updateField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) = Subscription id userId updatedAt createdAt plan newValue priceId (meta { touchedFields = "price" : touchedFields meta })
+instance UpdateField "priceId" (Subscription' userId) (Subscription' userId) Text Text where
+    {-# INLINE updateField #-}
+    updateField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) = Subscription id userId updatedAt createdAt plan price newValue (meta { touchedFields = "priceId" : touchedFields meta })
 instance UpdateField "meta" (Subscription' userId) (Subscription' userId) MetaBag MetaBag where
     {-# INLINE updateField #-}
-    updateField newValue (Subscription id userId updatedAt createdAt plan price meta) = Subscription id userId updatedAt createdAt plan price newValue
+    updateField newValue (Subscription id userId updatedAt createdAt plan price priceId meta) = Subscription id userId updatedAt createdAt plan price priceId newValue
 
 

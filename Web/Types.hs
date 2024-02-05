@@ -21,7 +21,7 @@ data UserController
 
 data SubscriptionController
     = SubscriptionsAction
-    | NewSubscriptionAction
+    | NewSubscriptionAction { userId :: !(Id User) }
     | ShowSubscriptionAction { subscriptionId :: !(Id Subscription) }
     | CreateSubscriptionAction
     | EditSubscriptionAction { subscriptionId :: !(Id Subscription) }

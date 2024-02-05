@@ -55,7 +55,7 @@ instance () => Table (User' subscriptions) where
 
 
 
-data Subscription' userId = Subscription {id :: (Id' "subscriptions"), userId :: userId, updatedAt :: UTCTime, createdAt :: UTCTime, plan :: Text, price :: Text, meta :: MetaBag} deriving (Eq, Show)
+data Subscription' userId = Subscription {id :: (Id' "subscriptions"), userId :: userId, updatedAt :: UTCTime, createdAt :: UTCTime, plan :: Text, price :: Text, priceId :: Text, meta :: MetaBag} deriving (Eq, Show)
 
 type instance PrimaryKey "subscriptions" = UUID
 type instance Include "userId" (Subscription' userId) = Subscription' (GetModelById userId)
@@ -70,7 +70,7 @@ instance Default (Id' "subscriptions") where def = Id def
 instance () => Table (Subscription' userId) where
     tableName = "subscriptions"
     tableNameByteString = Data.Text.Encoding.encodeUtf8 "subscriptions"
-    columnNames = ["id","user_id","updated_at","created_at","plan","price"]
+    columnNames = ["id","user_id","updated_at","created_at","plan","price","price_id"]
     primaryKeyCondition Subscription { id } = [("id", toField id)]
     {-# INLINABLE primaryKeyCondition #-}
 

@@ -7,7 +7,10 @@ instance View IndexView where
     html IndexView { .. } = [hsx|
         {breadcrumb}
 
-        <h1>Index<a href={pathTo NewSubscriptionAction} class="btn btn-primary ms-4">+ New</a></h1>
+        <!--
+        <h1>Index<a href={pathTo NewSubscriptionAction subscription.userId } class="btn btn-primary ms-4">+ New</a></h1>
+        -->
+        <h1>Index</h1>
         <div class="table-responsive">
             <table class="table">
                 <thead>
@@ -28,6 +31,12 @@ instance View IndexView where
                 [ breadcrumbLink "Subscriptions" SubscriptionsAction
                 ]
 
+-- getUserId :: (Id User)
+-- getUserId = case (getSession "userId") of 
+--     Just userId -> pure userId
+--     Nothing -> do
+--         let user = newRecord
+--         pure user.id
 renderSubscription :: Subscription -> Html
 renderSubscription subscription = [hsx|
     <tr>

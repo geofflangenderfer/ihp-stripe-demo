@@ -5,9 +5,20 @@ data NewView = NewView { subscription :: Subscription }
 
 instance View NewView where
     html NewView { .. } = [hsx|
+
         {breadcrumb}
         <h1>New Subscription</h1>
-        {renderForm subscription}
+        <h1>userId: {subscription.userId}</h1>
+        <div>
+            <span>
+                $99/month
+                {renderSimplePlan subscription}
+            </span>
+            <span>
+                $199/month
+                {renderPremiumPlan subscription}
+            </span>
+        </div>
     |]
         where
             breadcrumb = renderBreadcrumb
@@ -15,11 +26,17 @@ instance View NewView where
                 , breadcrumbText "New Subscription"
                 ]
 
-renderForm :: Subscription -> Html
-renderForm subscription = formFor subscription [hsx|
-    {(textField #userId)}
-    {(textField #plan)}
-    {(textField #price)}
+renderSimplePlan subscription = formFor subscription [hsx|
+    <input type="hidden" id="plan" name="plan" value="monthly" />
+    <input type="hidden" id="price" name="price" value="99" />
+    <input type="hidden" id="priceId" name="priceId" value="price_1OfO4xIa2YCAcFeYix02c5Jq" />
+    <input type="hidden" id="userId" name="userId" value={subscription.userId} />
     {submitButton}
-
+|]
+renderPremiumPlan subscription = formFor subscription [hsx|
+    <input type="hidden" id="plan" name="plan" value="monthly" />
+    <input type="hidden" id="price" name="price" value="199" />
+    <input type="hidden" id="priceId" name="priceId" value="price_1OfO4xIa2YCAcFeYcYkh8N4d" />
+    <input type="hidden" id="userId" name="userId" value={subscription.userId} />
+    {submitButton}
 |]

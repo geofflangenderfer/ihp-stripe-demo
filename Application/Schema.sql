@@ -22,7 +22,8 @@ CREATE TABLE subscriptions (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
     plan TEXT NOT NULL,
-    price TEXT NOT NULL
+    price TEXT NOT NULL,
+    price_id TEXT NOT NULL
 );
 CREATE INDEX subscriptions_user_id_index ON subscriptions (user_id);
 CREATE TRIGGER update_subscriptions_updated_at BEFORE UPDATE ON subscriptions FOR EACH ROW EXECUTE FUNCTION set_updated_at_to_now();

@@ -52,7 +52,7 @@ instance Controller UserController where
         case result of
             Nothing -> render NewView { .. }
             Just customerId -> do
-                putStrLn customerId
+                putStrLn $ "stripe customer id: " ++ customerId
                 let userWithCustomerId = user |> set #stripeCustomerId customerId
 
                 userWithCustomerId
@@ -62,7 +62,7 @@ instance Controller UserController where
                         Right user -> do
                             user <- user |> createRecord
                             setSuccessMessage "User created"
-                            redirectTo UsersAction
+                            redirectTo $ NewSubscriptionAction user.id
 
     action DeleteUserAction { userId } = do
         user <- fetch userId
