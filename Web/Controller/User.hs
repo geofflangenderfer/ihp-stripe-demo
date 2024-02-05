@@ -105,7 +105,6 @@ createStripeCustomer = do
                 Just actual -> TIO.putStrLn $ "error message: " ++ actual
                 Nothing -> putStrLn "no error message"
             pure Nothing
-        _ -> pure Nothing
 
 {-
 
